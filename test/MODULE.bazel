@@ -1,0 +1,5 @@
+bazel_dep(name = "utf8proc_s7")
+local_path_override(
+    module_name = "utf8proc_s7",
+    path = "..",
+)

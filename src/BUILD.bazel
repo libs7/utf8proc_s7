@@ -1,0 +1,55 @@
+package(default_visibility = ["//visibility:public"])
+
+load("@rules_cc//cc:defs.bzl",
+     "cc_library",
+     # "cc_shared_library"
+     )
+
+load("@libs7//lib:BUILD.bzl", "clibgen_runner")
+
+load("//:BUILD.bzl",
+     "BASE_COPTS",
+     "UTF8PROC_VERSION", "UTF8PROC_S7_VERSION",
+     "LIBS7_VERSION")
+
+SRCS = ["@libs7//src:s7.h"]
+DEPS          = ["@libs7//src:s7", "@utf8proc//:libutf8proc"]
+INCLUDE_PATHS = [
+    "-Iexternal/libs7~{}/src".format(LIBS7_VERSION),
+    "-Iexternal/utf8-proc~{}/include".format(UTF8PROC_VERSION),
+]
+COPTS         = BASE_COPTS + INCLUDE_PATHS
+# "@liblog_cc//src:logc",
+
+################################################################
+cc_library(
+    name  = "utf8proc_s7",
+    linkstatic = True,
+    alwayslink = True,
+    srcs  = SRCS + [":libutf8proc_s7.c"],
+    deps  = DEPS,
+    # + ["//src:s7",
+    #                 "@utf8proc//:libutf8proc"
+    #                 ],
+    copts = COPTS, # + ["-Wno-unused-parameter"],
+    # linkopts = LINKOPTS,
+    # local_defines = DEFINES,
+)
+
+cc_shared_library(
+    name = "utf8proc_s7_dso",
+    shared_lib_name = select({
+        "@platforms//os:macos": "libutf8proc_s7.dylib",
+        "@platforms//os:linux": "libutf8proc_s7.so",
+        # "@platforms//os:windows": "libutf8proc_s7.dll",
+        "//conditions:default": "libutf8proc_s7.so"
+    }),
+    deps = [":utf8proc_s7"]
+)
+
+clibgen_runner(
+    name = "libutf8proc_s7_runbin",
+    args = ["--script", "$(location libutf8proc_clibgen.scm)"],
+    srcs = [":libutf8proc_clibgen.scm"],
+    outs = ["libutf8proc_s7.c"]
+)
