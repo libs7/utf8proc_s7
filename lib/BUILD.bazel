@@ -1,0 +1,34 @@
+package(default_visibility = ["//visibility:public"])
+
+load("@rules_cc//cc:defs.bzl",
+     "cc_library",
+     # "cc_shared_library"
+     )
+
+load("@libs7//plugin:MACROS.bzl", "s7_plugin", "s7_library")
+
+SRCS = []
+DEPS = ["@utf8proc//lib:utf8proc"]
+INCLUDE_PATHS = [
+    # "-I$(@utf8proc)/lib"
+]
+COPTS         = ["-Wno-unused-parameter"] + INCLUDE_PATHS
+
+################################################################
+s7_plugin(
+    name  = "utf8proc_s7",
+    srcs  = SRCS + ["//lib/clibgen:libutf8proc_s7.c"],
+    deps  = DEPS,
+    copts = COPTS,
+)
+
+cc_shared_library(
+    name = "utf8proc_s7_dso",
+    shared_lib_name = select({
+        "@platforms//os:macos": "libutf8proc_s7.dylib",
+        "@platforms//os:linux": "libutf8proc_s7.so",
+        # "@platforms//os:windows": "libutf8proc_s7.dll",
+        "//conditions:default": "libutf8proc_s7.so"
+    }),
+    deps = [":utf8proc_s7"]
+)

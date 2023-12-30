@@ -1,9 +1,9 @@
 #include "gopt.h"
-#include "log.h"
+#include "liblogc.h"
 #include "unity.h"
 #include "utstring.h"
 
-#include "common.h"
+#include "s7plugin_test_config.h"
 
 #include "libs7.h"
 
@@ -152,28 +152,8 @@ void test_properties(void) {
 
 int main(int argc, char **argv)
 {
-    //FIXME: throw error if run outside of bazel
-    if ( !getenv("BAZEL_TEST") ) {
-        log_error("This test must be run in a Bazel environment: bazel test //path/to/test (or bazel run)" );
-        exit(EXIT_FAILURE);
-    }
-
-    /* log_trace("WS: %s", getenv("TEST_WORKSPACE")); */
-    /* log_debug("ARGV[0]: %s", argv[0]); */
-    /* log_debug("CWD: %s", getcwd(NULL, 0)); */
-
-    argc = gopt (argv, options);
-    (void)argc;
-    gopt_errors (argv[0], options);
-
-    set_options("utf8proc", options);
-
-    if (debug)
-        print_debug_env();
-
-    s7 = libs7_init();
-
-    libs7_load_clib(s7, "utf8proc");
+    s7 = s7_plugin_initialize("libm", argc, argv);
+    libs7_load_plugin(s7, "utf8proc");
 
     char *script_dir = "./test";
     s7_pointer newpath;

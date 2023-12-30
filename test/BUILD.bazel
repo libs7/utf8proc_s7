@@ -1,33 +1,33 @@
 load("@rules_cc//cc:defs.bzl", "cc_test")
 
-load("//:BUILD.bzl",
-     "BASE_SRCS", "BASE_DEPS", "BASE_INCLUDE_PATHS",
-     "BASE_COPTS", "BASE_DEFINES", "BASE_LINKOPTS",
-     "TIMEOUT",
-     "LIBLOG_CC_VERSION",
-     "GOPT_VERSION",
-     "UNITY_VERSION",
-     "UTHASH_VERSION")
+load("@libs7//plugin:MACROS.bzl", "s7_plugin_test")
 
-DEPS          = BASE_DEPS + [
-    "//src:utf8proc_s7",
-    "@gopt//:gopt",
-    "@unity//src:unity",
-    "@uthash//src:uthash",
-    "@liblog_cc//src:logc"
+# load("//:BUILD.bzl",
+#      "BASE_SRCS", "BASE_DEPS", "BASE_INCLUDE_PATHS",
+#      "BASE_COPTS", "BASE_DEFINES", "BASE_LINKOPTS",
+#      "TIMEOUT")
+
+DEPS          = [
+    "//lib:utf8proc_s7",
+    # "@gopt//lib:gopt",
+    # "@unity//lib:unity",
+    # "@uthash//lib:uthash",
+    # "@liblogc//lib:logc"
 ]
-SRCS          = BASE_SRCS + ["common.c", "common.h"]
-INCLUDE_PATHS = BASE_INCLUDE_PATHS + [
-    "-Isrc",
-    "-Itest",
-    "-Iexternal/gopt~{}/src".format(GOPT_VERSION),
-    "-Iexternal/unity~{}/src".format(UNITY_VERSION),
-    "-Iexternal/uthash~{}/src".format(UTHASH_VERSION),
-    "-Iexternal/liblog_cc~{}/src".format(LIBLOG_CC_VERSION)
-]
-COPTS         = BASE_COPTS + INCLUDE_PATHS
-DEFINES       = BASE_DEFINES
-LINKOPTS      = BASE_LINKOPTS
+SRCS          = [] # BASE_SRCS + ["common.c", "common.h"]
+INCLUDE_PATHS = []
+# BASE_INCLUDE_PATHS + [
+    # "-Isrc",
+    # "-Itest",
+    # "-Iexternal/gopt~{}/lib".format(GOPT_VERSION),
+    # "-Iexternal/unity~{}/lib".format(UNITY_VERSION),
+    # "-Iexternal/uthash~{}/lib".format(UTHASH_VERSION),
+    # "-Iexternal/liblogc~{}/lib".format(LIBLOGC_VERSION)
+# ]
+COPTS         = INCLUDE_PATHS
+DEFINES       = []
+LINKOPTS      = []
+TIMEOUT = "short"
 
 ################################################################
 # exports_files(["common.c", "common.h"])
@@ -39,45 +39,12 @@ test_suite(
     ]
 )
 
-cc_test(
+s7_plugin_test(
     name = "utf8proc_test",
-    linkstatic = True,
     srcs = SRCS + ["utf8proc_test.c"],
-    #         # "//src:s7",
-    #         # "//src:libs7.h"
-    #                ] + select({
-    #     "//config/clibs/link:shared?": [
-    #         # "//lib/libc:c_s7.c", ## "//lib/libc:libc_s7.h",
-    #         # "//lib/libutf8proc:utf8proc_s7.c",
-    #         ## "//lib/libutf8proc:libutf8proc_s7.h",
-    #     ],
-    #     "//conditions:default": []
-    # }),
     local_defines = DEFINES,
     deps = DEPS,
-    # + select({
-    #     "//config/clibs/link:archive?": [
-    #         # "//src:s7",
-    #         "//lib/libutf8proc:utf8proc_s7",
-    #     ],
-    #     "//config/clibs/link:shared?": [
-    #         # "//src:s7",
-    #         "//lib/libutf8proc:utf8proc_s7",
-    #     ],
-    #     "//conditions:default": [],
-    # }),
-    # data = select({
-    #     "//config/clibs/link:runtime?": [
-    #         # "//lib/libc:c_s7",
-    #         "//lib/libutf8proc:utf8proc_s7",
-    #     ],
-    #     "//conditions:default": []
-    # }),
     copts = COPTS,
-    # + [
-    #     "-I$(GENDIR)/lib/libutf8proc",
-    #     "-I$(GENDIR)/external/libs7/lib/libutf8proc",
-    # ],
     linkopts = LINKOPTS,
     timeout  = TIMEOUT,
 )
