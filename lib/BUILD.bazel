@@ -1,18 +1,19 @@
 package(default_visibility = ["//visibility:public"])
 
+load("@obazl_tools_cc//config:BASE.bzl", "BASE_COPTS")
 load("@rules_cc//cc:defs.bzl",
      "cc_library",
-     # "cc_shared_library"
+     "cc_shared_library"
      )
 
 load("@libs7//plugin:MACROS.bzl", "s7_plugin", "s7_library")
 
-SRCS = []
-DEPS = ["@utf8proc//lib:utf8proc"]
-INCLUDE_PATHS = [
-    # "-I$(@utf8proc)/lib"
+SRCS          = []
+DEPS          = ["@utf8proc//lib:utf8proc"]
+INCLUDE_PATHS = []
+COPTS         = BASE_COPTS + INCLUDE_PATHS + [
+    "-Wno-unused-parameter"
 ]
-COPTS         = ["-Wno-unused-parameter"] + INCLUDE_PATHS
 
 ################################################################
 s7_plugin(
